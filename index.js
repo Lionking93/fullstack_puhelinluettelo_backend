@@ -2,8 +2,10 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
+const cors = require('cors')
 const MAX_ID = 100000
 
+app.use(cors())
 app.use(bodyParser.json())
 
 morgan.token('post-body', (req, res) => {
@@ -75,13 +77,13 @@ app.post('/api/persons', (req, res) => {
     const newId = generateId()
     const body = req.body
     
-    if (body.name === undefined) {
+    if (body.name === undefined || body.name === "") {
         return res.status(400).json({
             error: 'name missing'
         })
     }
 
-    if (body.number === undefined) {
+    if (body.number === undefined || body.number === "") {
         return res.status(400).json({
             error: 'number missing'
         })
