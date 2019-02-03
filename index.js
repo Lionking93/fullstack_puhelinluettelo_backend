@@ -6,7 +6,22 @@ const MAX_ID = 100000
 
 app.use(bodyParser.json())
 
-app.use(morgan('tiny'))
+morgan.token('post-body', (req, res) => {
+    return Object.getOwnPropertyNames(req.body).length > 0 ? JSON.stringify(req.body) : ''  
+})
+
+app.use(
+    morgan((tokens, req, res) => {
+        return [
+            tokens.method(req, res),
+            tokens.url(req, res),
+            tokens.status(req, res),
+            tokens.res(req, res, 'content-length'), '-',
+            tokens['response-time'](req,res), 'ms',
+            tokens['post-body'](req, res)
+        ].join(' ')
+    })
+)
 
 let persons = [
     {
