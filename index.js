@@ -1,5 +1,9 @@
 const express = require('express')
 const app = express()
+const bodyParser = require('body-parser')
+const MAX_ID = 100000
+
+app.use(bodyParser.json())
 
 let persons = [
     {
@@ -44,6 +48,19 @@ app.delete('/api/persons/:id', (req, res) => {
     persons = persons.filter(p => p.id !== id)
 
     res.status(204).end()
+})
+
+const generateId = () =>
+    Math.floor(Math.random() * MAX_ID)
+
+app.post('/api/persons', (req, res) => {
+    const newId = generateId()
+    const newPerson = req.body
+    
+    newPerson.id = newId
+
+    persons = persons.concat(newPerson)
+    res.json(newPerson)
 })
 
 app.get('/info', (req, res) => { 
