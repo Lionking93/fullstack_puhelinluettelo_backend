@@ -60,18 +60,19 @@ app.get('/api/persons', (req, res, next) => {
         .catch(error => next(error))
 })
 
-app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    const personToFind = persons.find(p => p.id === id)
-
-    if (personToFind) {
-        return res.json(personToFind)
-    } else {
-        res.status(404).end()
-    }
+app.get('/api/persons/:id', (req, res, next) => {
+    Person.findById(req.params.id)
+        .then(foundPerson => {
+            if (foundPerson) {
+                console.log(`Found person with id ${foundPerson.id}`)
+                res.json(foundPerson.toJSON())
+            } else {
+                res.status(404).end()
+            }
+        }).catch(err => next(err))
 })
 
-app.delete('/api/persons/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res, next) => {
     Person.findByIdAndRemove(req.params.id)
         .then(result => {
             console.log("Removal of person successful")
@@ -95,7 +96,7 @@ app.put('/api/persons/:id', (req, res, next) => {
         .catch(error => next(error))
 })
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
     const body = req.body
     
     if (body.name === undefined || body.name === "") {
@@ -128,10 +129,15 @@ app.post('/api/persons', (req, res) => {
     .catch(error => next(error))
 })
 
-app.get('/info', (req, res) => { 
-    res.send(
-        `<p>Puhelinluettelossa ${persons.length} henkilön tiedot</p>
-        <p>${new Date()}</p>`)
+app.get('/info', (req, res) => {
+    Person.find({})
+        .then(persons => {
+            res.send(
+                `<p>Puhelinluettelossa ${persons.length} henkilön tiedot</p>
+                <p>${new Date()}</p>`
+            )
+        })
+        .catch(error => next(err)) 
 })
 
 const errorHandler = (error, req, res, next) => {
