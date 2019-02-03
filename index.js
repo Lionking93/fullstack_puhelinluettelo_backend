@@ -1,9 +1,12 @@
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
+const morgan = require('morgan')
 const MAX_ID = 100000
 
 app.use(bodyParser.json())
+
+app.use(morgan('tiny'))
 
 let persons = [
     {
