@@ -111,7 +111,7 @@ app.get('/info', (req, res) => {
         <p>${new Date()}</p>`)
 })
 
-const port = 3001
-app.listen(port, () => {
-    console.log("Listening for requests to port", port)
+const PORT = process.env.PORT || 3001
+app.listen(PORT, () => {
+    console.log(`Listening for requests to port ${PORT}`)
 })
