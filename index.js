@@ -28,6 +28,17 @@ app.get('/api/persons', (req, res) => {
     res.json(persons)
 })
 
+app.get('/api/persons/:id', (req, res) => {
+    const id = Number(req.params.id)
+    const personToFind = persons.find(p => p.id === id)
+
+    if (personToFind) {
+        return res.json(personToFind)
+    } else {
+        res.status(404).end()
+    }
+})
+
 app.get('/info', (req, res) => { 
     res.send(
         `<p>Puhelinluettelossa ${persons.length} henkilön tiedot</p>
