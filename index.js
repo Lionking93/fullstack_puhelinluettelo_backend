@@ -1,8 +1,10 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const cors = require('cors')
+const Person = require('./models/person')
 const MAX_ID = 100000
 
 app.use(express.static('build'))
@@ -50,7 +52,14 @@ let persons = [
 ]
 
 app.get('/api/persons', (req, res) => {
-    res.json(persons)
+    Person.find({})
+        .then(persons => {
+            return res.json(persons.map(p => p.toJSON()))
+        })
+        .catch(error => {
+            console.log(`Error in fetching all persons. Reason: ${error}`);
+            return res.status(500).end()
+        })
 })
 
 app.get('/api/persons/:id', (req, res) => {

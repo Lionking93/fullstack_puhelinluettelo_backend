@@ -28,7 +28,7 @@ if (process.argv.length === 5) {
     })
 
     person.save().then(response => {
-        console.log(`lisätään ${newName} numero ${newNumber} luetteloon`)
+        console.log(`lisätään ${response.name} numero ${response.number} luetteloon`)
         mongoose.connection.close()
     })
 } else if (process.argv.length === 3) {
