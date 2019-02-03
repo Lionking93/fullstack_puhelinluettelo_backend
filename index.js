@@ -51,16 +51,25 @@ let persons = [
     }
 ]
 
-app.get('/api/persons', (req, res) => {
+const errorHandler = (error, req, res, next) => {
+    console.log(error.message)
+
+    if (error.name === 'CastError' && error.kind == 'ObjectId') {
+        return response.status(400).send({ error: 'malformatted id' })
+    }
+
+    next(error)
+}
+
+app.use(errorHandler)
+
+app.get('/api/persons', (req, res, next) => {
     Person.find({})
         .then(persons => {
             console.log(`${persons.length} persons were returned successfully from db`)
             return res.json(persons.map(p => p.toJSON()))
         })
-        .catch(error => {
-            console.log(`Error in fetching all persons. Reason: ${error}`);
-            return res.status(500).end()
-        })
+        .catch(error => next(error))
 })
 
 app.get('/api/persons/:id', (req, res) => {
@@ -113,10 +122,7 @@ app.post('/api/persons', (req, res) => {
         console.log(`New person ${addedPerson.name} with number ${addedPerson.number} was added successfully!`)
         return res.json(addedPerson.toJSON())
     })
-    .catch(error => {
-        console.log(`Failed to add new person. Reason: ${error}`)
-        return res.status(500).end()
-    })
+    .catch(error => next(error))
 })
 
 app.get('/info', (req, res) => { 
