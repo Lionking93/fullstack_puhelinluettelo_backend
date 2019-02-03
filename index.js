@@ -5,6 +5,7 @@ const morgan = require('morgan')
 const cors = require('cors')
 const MAX_ID = 100000
 
+app.use(express.static('build'))
 app.use(cors())
 app.use(bodyParser.json())
 
