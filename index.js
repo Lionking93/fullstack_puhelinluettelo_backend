@@ -55,9 +55,31 @@ const generateId = () =>
 
 app.post('/api/persons', (req, res) => {
     const newId = generateId()
-    const newPerson = req.body
+    const body = req.body
     
-    newPerson.id = newId
+    if (body.name === undefined) {
+        return res.status(400).json({
+            error: 'name missing'
+        })
+    }
+
+    if (body.number === undefined) {
+        return res.status(400).json({
+            error: 'number missing'
+        })
+    }
+
+    if (persons.find(p => p.name === body.name)) {
+        return res.status(400).json({
+            error: 'name must be unique'
+        })
+    }
+
+    const newPerson = {
+        id: newId,
+        name: body.name,
+        number: body.number
+    }
 
     persons = persons.concat(newPerson)
     res.json(newPerson)
