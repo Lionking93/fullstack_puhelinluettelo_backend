@@ -54,6 +54,7 @@ let persons = [
 app.get('/api/persons', (req, res) => {
     Person.find({})
         .then(persons => {
+            console.log(`${persons.length} persons were returned successfully from db`)
             return res.json(persons.map(p => p.toJSON()))
         })
         .catch(error => {
@@ -80,11 +81,7 @@ app.delete('/api/persons/:id', (req, res) => {
     res.status(204).end()
 })
 
-const generateId = () =>
-    Math.floor(Math.random() * MAX_ID)
-
 app.post('/api/persons', (req, res) => {
-    const newId = generateId()
     const body = req.body
     
     if (body.name === undefined || body.name === "") {
@@ -99,20 +96,25 @@ app.post('/api/persons', (req, res) => {
         })
     }
 
-    if (persons.find(p => p.name === body.name)) {
+   /* if (persons.find(p => p.name === body.name)) {
         return res.status(400).json({
             error: 'name must be unique'
         })
-    }
+    }*/
 
-    const newPerson = {
-        id: newId,
+    const newPerson = new Person({
         name: body.name,
         number: body.number
-    }
+    })
 
-    persons = persons.concat(newPerson)
-    res.json(newPerson)
+    newPerson.save().then(addedPerson => {
+        console.log(`New person ${addedPerson.name} with number ${addedPerson.number} was added successfully!`)
+        return res.json(addedPerson.toJSON())
+    })
+    .catch(error => {
+        console.log(`Failed to add new person. Reason: ${error}`)
+        return res.status(500).end()
+    })
 })
 
 app.get('/info', (req, res) => { 
