@@ -51,18 +51,6 @@ let persons = [
     }
 ]
 
-const errorHandler = (error, req, res, next) => {
-    console.log(error.message)
-
-    if (error.name === 'CastError' && error.kind == 'ObjectId') {
-        return response.status(400).send({ error: 'malformatted id' })
-    }
-
-    next(error)
-}
-
-app.use(errorHandler)
-
 app.get('/api/persons', (req, res, next) => {
     Person.find({})
         .then(persons => {
@@ -88,6 +76,21 @@ app.delete('/api/persons/:id', (req, res) => {
         .then(result => {
             console.log("Removal of person successful")
             res.status(204).end()
+        })
+        .catch(error => next(error))
+})
+
+app.put('/api/persons/:id', (req, res, next) => {
+    const body = req.body
+
+    const newPerson = {
+        number: body.number
+    }
+
+    Person.findByIdAndUpdate(req.params.id, newPerson, { new: true })
+        .then(updatedPerson => {
+            console.log(`Updated number of person with id ${req.params.id} to ${updatedPerson.number}`)
+            res.json(updatedPerson.toJSON())
         })
         .catch(error => next(error))
 })
@@ -130,6 +133,18 @@ app.get('/info', (req, res) => {
         `<p>Puhelinluettelossa ${persons.length} henkilön tiedot</p>
         <p>${new Date()}</p>`)
 })
+
+const errorHandler = (error, req, res, next) => {
+    console.log(error.message)
+
+    if (error.name === 'CastError' && error.kind == 'ObjectId') {
+        return res.status(400).send({ error: 'malformatted id' })
+    }
+
+    next(error)
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
